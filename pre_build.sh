@@ -1,5 +1,5 @@
 #!/bin/bash
 
-# Run before `tsc`
+# Must run before `tsc`
 
 rm -rf build
