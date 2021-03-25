@@ -6,3 +6,5 @@
 mkdir ./build/graphql
 
 cp src/graphql/schema.graphql ./build/graphql
+mkdir ./build/views
+cp src/views/*.ejs ./build/views/
