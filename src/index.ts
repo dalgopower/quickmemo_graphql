@@ -15,13 +15,6 @@ app.set('view engine', 'ejs');
 
 app.use(indexRouter);
 
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const err: Error = new Error('Page Not Found');
-  (err as any).status = 404;
-  next(err);
-});
-
-
 const curDir = __dirname + '/graphql/schema.graphql';
 const typeDefs = fs.readFileSync(curDir, { encoding: 'utf-8' });
 
@@ -37,6 +30,11 @@ server.applyMiddleware({
   path: '/graphql' // REST API url
 })
 
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const err: Error = new Error('Page Not Found');
+  (err as any).status = 404;
+  next(err);
+});
 
 // 정보) http://localhost:9000/graphql 으로 playground 접근 가능
 app.listen(port, () => {

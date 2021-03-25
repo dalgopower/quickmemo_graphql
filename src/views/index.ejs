@@ -1,8 +1,165 @@
-<html>
-<head>
-  
-</head>
-<body>
-  <p>Index Page (EJS)</p>
-</body>
+<!doctype html>
+<html lang="ko">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Quick memo</title>
+    <style>
+
+      #app {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .memo-container {
+        width: 100%;
+        height: 200px;
+        background: yellow;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* horizontally */
+        justify-content: center; /* vertically */
+      }
+
+      #memo-editor {
+        width: 60%;
+      }
+
+      .memo-list-container {
+        width: 100%;
+        height: 100vh;
+        padding: 5px;
+      }
+
+      #memo-list-box {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+      }
+
+      .memo-box {
+        width: 60%;
+        min-height: 50px;
+        word-wrap: normal;
+        border: 1px solid black;
+        background: rgba(200, 200, 200, 0.2);
+        margin: 10px 0px;
+      }
+
+    </style>
+    <script>
+
+      const store = {
+        memos: []
+      };
+
+      function clearMemoList() {
+        const memoListBox = document.getElementById('memo-list-box');
+        while (memoListBox.firstChild) {
+          memoListBox.removeChild(memoListBox.lastChild);
+        }
+        return memoListBox;
+      }
+
+      function _createMemoElement(memo) {
+        const divElm = document.createElement('div');
+        divElm.className = 'memo-box';
+
+        const txt = document.createTextNode(memo.content);
+        divElm.appendChild(txt);
+        return divElm;
+      }
+
+      function refreshMemoList(memos) {
+        const memoListBox = clearMemoList();
+        memos.forEach((memo) => {
+          const memoElm = _createMemoElement(memo);
+          memoListBox.appendChild(memoElm);
+        })
+      }
+
+      function addOneToMemoList(memo) {
+        const memoListBox = document.getElementById('memo-list-box');
+        const memoElm = _createMemoElement(memo);
+        memoListBox.appendChild(memoElm);
+      }
+
+      function sendGraphQLQuery(q) {
+        return fetch('/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ query: q })
+        })
+        .then((r) => r.json())
+      }
+
+      const api = {
+        getAllMemos: function() {
+          const query = `query { memos { id, content, createdAt, updatedAt }}`;
+
+          return sendGraphQLQuery(query)
+          .then((data) => {
+            return data.data.memos
+              ? { ok: true, memos: data.data.memos }
+              : { ok: false, memos: [] }
+          })
+        },
+
+        saveMemo: function(memo) {
+          const query = `mutation { createMemo(content: "${memo}") { id, content, createdAt } }`;
+
+          return sendGraphQLQuery(query)
+          .then((data) => {
+            return data.data.createMemo
+              ? { ok: true, memo: data.data.createMemo }
+              : { ok: false, memo: null };
+          })
+        }
+      }
+
+      function saveMemo() {
+        const editor = document.getElementById('memo-editor');
+        api.saveMemo(editor.value)
+        .then(({ ok, memo }) => {
+          if (ok) {
+            addOneToMemoList(memo);
+            store.memos.push(memo);
+          }
+        })
+      }
+
+      function onLoad() {
+        api.getAllMemos()
+        .then(({ ok, memos }) => {
+          refreshMemoList(memos);
+          store.memos = memos;
+        })
+      }
+
+    </script>
+
+  </head>
+  <body onload="onLoad()">
+    <div id="app">
+      <div class="memo-container">
+        <h4>메모를 입력하세요</h4>
+        <textarea id="memo-editor" rows="10"></textarea>
+        <button onclick="saveMemo()">저장</button>
+      </div>
+      <div class="memo-list-container">
+        <div id="memo-list-box">
+
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

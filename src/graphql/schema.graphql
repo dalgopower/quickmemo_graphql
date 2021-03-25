@@ -4,7 +4,7 @@ type Query {
 }
 
 type Mutation {
-  createMemo(content: String!): CallResult
+  createMemo(content: String!): Memo!
   updateMemo(id: Int!, content: String!): CallResult
 }
 
@@ -18,4 +18,5 @@ type Memo {
 type CallResult {
   ok: Boolean!
   err: String
+  ts: String
 }

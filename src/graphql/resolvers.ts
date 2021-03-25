@@ -10,7 +10,8 @@ const resolvers = {
     },
   },
   Memo: {
-    // GraphQL의 'Int'는 32-bit라서 문자열로 변환해서 보내야 함.
+    // GraphQL의 'Int'는 32-bit라서 타임스탬프를 보내려면
+    // 문자열로 변환해서 보내야 함.
     createdAt: (parent: any) => String(parent.createdAt),
     updatedAt: (parent: any) => String(parent.updatedAt)
   },
@@ -25,7 +26,7 @@ const resolvers = {
 
       store.memos.push(newMemo);
 
-      return { ok: true };
+      return newMemo;
     },
     updateMemo: async (_: any, args: any, ctx: any) => {
       const memoId: number = args.id;
