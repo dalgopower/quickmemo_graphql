@@ -3,6 +3,8 @@ import * as path from 'path';
 
 import express from 'express';
 import { ApolloServer } from "apollo-server-express";
+import { PrismaClient } from '@prisma/client'
+
 import resolvers from './graphql/resolvers';
 
 import { router as indexRouter } from './routes/index';
@@ -18,11 +20,16 @@ app.use(indexRouter);
 const curDir = __dirname + '/graphql/schema.graphql';
 const typeDefs = fs.readFileSync(curDir, { encoding: 'utf-8' });
 
+const prisma = new PrismaClient();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  introspection: true,
-  playground: true
+  context: {
+    prisma
+  }
+  // introspection: true,
+  // playground: true
 })
 
 server.applyMiddleware({

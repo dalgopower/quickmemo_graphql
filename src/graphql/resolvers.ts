@@ -2,11 +2,30 @@ import store from '../store';
 
 import { Memo } from '../types';
 
+/*
+  데이터베이스의 테이블 또는 컬럼에 추가/삭제/수정이 이루어졌다면
+  아래의 2가지 명령을 실행시켜야 한다.
+
+  # 1) 데이터베이스의 스키마를 읽어서 가져와서
+  # Prisma 스키마 (schema.prisma 파일) 을 업데이트 시킴
+  npx prisma introspect
+
+  # 2) Prisma 스키마를 prisma/schema.prisma에서 읽어서
+  # ./node_modules/@prisma/client에다가 Prisma Client를 생성함
+  npx prisma generate
+*/
+
 const resolvers = {
   Query: {
     ping: () => "pong",
     memos: async (_: any, payload: any, ctx: any) => {
-      return store.memos;
+      let memos = [];
+      try {
+        memos = await ctx.prisma.memo.findMany();
+      } catch(err) {
+        console.log(err);
+      }
+      return memos;
     },
   },
   Memo: {
@@ -17,16 +36,20 @@ const resolvers = {
   },
   Mutation: {
     createMemo: async (_: any, args: any, ctx: any) => {
-      const newMemo: Memo = {
-        id: store.memos.length + 1,
-        content: args.content,
-        createdAt: new Date().valueOf(),
-        updatedAt: new Date().valueOf()
+      try {
+        const newMemo: Memo = await ctx.prisma.memo.create({
+          data: {
+            content: args.content,
+            createdAt: new Date().valueOf(),
+            updatedAt: new Date().valueOf()
+          }
+        })
+        return newMemo;
+      } catch(err) {
+        console.log(err);
       }
 
-      store.memos.push(newMemo);
-
-      return newMemo;
+      return null;
     },
     updateMemo: async (_: any, args: any, ctx: any) => {
       const memoId: number = args.id;

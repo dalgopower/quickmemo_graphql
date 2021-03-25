@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Memo {
+  id        Int    @id @default(autoincrement())
+  content   String
+  updatedAt Int    @map("updated_at")
+  createdAt Int    @map("created_at")
+
+  @@map("memo")
+}
+
+model user {
+  id   Int    @id @default(autoincrement())
+  name String
+}
