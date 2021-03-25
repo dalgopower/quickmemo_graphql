@@ -1,0 +1,21 @@
+type Query {
+  memos: [Memo]
+  ping: String
+}
+
+type Mutation {
+  createMemo(content: String!): CallResult
+  updateMemo(id: Int!, content: String!): CallResult
+}
+
+type Memo {
+  id: Int!
+  content: String!
+  createdAt: String
+  updatedAt: String
+}
+
+type CallResult {
+  ok: Boolean!
+  err: String
+}

@@ -4,7 +4,8 @@
   "description": "Simple quick memo website",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "tsc && node build/index.js"
+    "build": "tsc",
+    "dev": "./pre_build.sh && npm run build && ./post_build.sh && node build/index.js"
   },
   "keywords": [],
   "author": "",
