@@ -14,7 +14,6 @@ model Memo {
   createdAt Int    @map("created_at")
 
   @@map("memo")
-  @@id([id])
 }
 
 model user {
