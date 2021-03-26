@@ -5,8 +5,11 @@ The purpose of this application is to practice GraphQL and Prisma.
 
 It is a very simple memo web application. One can write a memo instantly without a title.
 
-## Used
-Express / Apollo Server / GraphQL / SQLite3 / Prisma
+## Language/Skills/Framework/Library
+Node.js  
+Typescript  
+Express / Apollo Server / GraphQL  
+SQLite3 / Prisma
 
 ## Setup
 
