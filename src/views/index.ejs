@@ -45,11 +45,25 @@
 
       .memo-box {
         width: 60%;
+        display: flex;
+      }
+
+      .memo {
+        flex-grow: 1;
         min-height: 50px;
         word-wrap: normal;
         border: 1px solid black;
         background: rgba(200, 200, 200, 0.2);
         margin: 10px 0px;
+      }
+
+      .deleteBtn {
+        margin: auto 3px;
+        height: 20px;
+        max-width: 50px;
+        min-width: 50px;
+        border: 1px solid rgba(61, 74, 255, 0.8);
+        background: white;
       }
 
     </style>
@@ -68,15 +82,38 @@
       }
 
       function _createMemoElement(memo) {
-        const divElm = document.createElement('div');
-        divElm.className = 'memo-box';
+        const boxElm = document.createElement('div');
+        boxElm.className = 'memo-box';
+
+        // 메모
+        const memoElm = document.createElement('div');
+        memoElm.className = 'memo';
 
         const txt = document.createTextNode(memo.content);
-        divElm.appendChild(txt);
-        return divElm;
+        memoElm.appendChild(txt);
+
+        // 삭제 버튼
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerText = '삭제';
+        deleteBtn.className = 'deleteBtn';
+        deleteBtn.addEventListener('click', (e) => {
+          api.deleteMemo(memo.id)
+          .then(({ ok }) => {
+            if (ok) {
+              refresh();
+            } else {
+              alert('삭제 실패');
+            }
+          })
+        })
+
+        boxElm.appendChild(memoElm);
+        boxElm.appendChild(deleteBtn);
+
+        return boxElm;
       }
 
-      function refreshMemoList(memos) {
+      function redrawMemoList(memos) {
         const memoListBox = clearMemoList();
         memos.forEach((memo) => {
           const memoElm = _createMemoElement(memo);
@@ -123,6 +160,14 @@
               ? { ok: true, memo: data.data.createMemo }
               : { ok: false, memo: null };
           })
+        },
+
+        deleteMemo: function(memoId) {
+          const query = `mutation { deleteMemo(id: ${memoId}) { ok } }`;
+          return sendGraphQLQuery(query)
+          .then((data) => {
+            return data.data.deleteMemo;
+          })
         }
       }
 
@@ -139,10 +184,10 @@
         })
       }
 
-      function onLoad() {
+      function refresh() {
         api.getAllMemos()
         .then(({ ok, memos }) => {
-          refreshMemoList(memos);
+          redrawMemoList(memos);
           store.memos = memos;
         })
       }
@@ -150,7 +195,7 @@
     </script>
 
   </head>
-  <body onload="onLoad()">
+  <body onload="refresh()">
     <div id="app">
       <div class="memo-container">
         <h4>메모를 입력하세요</h4>

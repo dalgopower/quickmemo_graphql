@@ -6,6 +6,7 @@ type Query {
 type Mutation {
   createMemo(content: String!): Memo
   updateMemo(id: Int!, content: String!): CallResult
+  deleteMemo(id: Int!): CallResult
 }
 
 type Memo {

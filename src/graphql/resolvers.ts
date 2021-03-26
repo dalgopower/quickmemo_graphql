@@ -46,6 +46,7 @@ const resolvers = {
         })
         return newMemo;
       } catch(err) {
+        console.log(`createMemo resolver`);
         console.log(err);
       }
 
@@ -53,12 +54,43 @@ const resolvers = {
     },
     updateMemo: async (_: any, args: any, ctx: any) => {
       const memoId: number = args.id;
-      // TODO: binary search로 바꾸기
-      const target = store.memos.find((memo) => memo.id === memoId);
-      if (target) {
-        target.content = args.content;
-        return { ok: true };
-      } else {
+      try {
+        const updated = await ctx.prisma.memo.update({
+          where: {
+            id: memoId
+          },
+          data: {
+            content: args.content,
+            updatedAt: new Date().valueOf()
+          }
+        })
+        return { ok: updated ? true : false };
+      } catch(err) {
+        if (err.code === 'P2025') {
+          console.log(`Record #${memoId}: ${err.meta.cause}`);
+        } else {
+          console.log(`updateMemo resolver`);
+          console.log(err);
+        }
+        return { ok: false };
+      }
+    },
+    deleteMemo: async (_: any, args: any, ctx: any) => {
+      const memoId: number = args.id;
+      try {
+        const updated = await ctx.prisma.memo.delete({
+          where: {
+            id: memoId
+          }
+        })
+        return { ok: updated ? true : false };
+      } catch(err) {
+        if (err.code === 'P2025') {
+          console.log(`Record #${memoId}: ${err.meta.cause}`);
+        } else {
+          console.log(`updateMemo resolver`);
+          console.log(err);
+        }
         return { ok: false };
       }
     }
